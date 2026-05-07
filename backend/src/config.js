@@ -9,11 +9,13 @@ const config = {
 
   // Redis connection
   redis: {
+    url: process.env.REDIS_URL || null,
     host: process.env.REDIS_HOST || 'localhost',
     port: parseInt(process.env.REDIS_PORT) || 6379,
     maxRetriesPerRequest: null,
     enableReadyCheck: false,
     lazyConnect: true,
+    enableOfflineQueue: false,
   },
 
   // Tier limits configuration

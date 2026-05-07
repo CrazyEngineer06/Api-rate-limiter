@@ -117,13 +117,22 @@ return {allowed, math.max(0, remaining), reset_time}
 function initRedis() {
   if (redis) return redis;
 
-  redis = new Redis({
-    host: config.redis.host,
-    port: config.redis.port,
+  const redisOptions = {
     maxRetriesPerRequest: config.redis.maxRetriesPerRequest,
     enableReadyCheck: config.redis.enableReadyCheck,
     lazyConnect: config.redis.lazyConnect,
-  });
+    enableOfflineQueue: config.redis.enableOfflineQueue,
+  };
+
+  if (config.redis.url) {
+    redis = new Redis(config.redis.url, redisOptions);
+  } else {
+    redis = new Redis({
+      host: config.redis.host,
+      port: config.redis.port,
+      ...redisOptions
+    });
+  }
 
   // Register Lua scripts as custom commands
   redis.defineCommand('tokenBucket', {
