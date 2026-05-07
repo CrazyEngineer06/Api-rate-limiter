@@ -57,6 +57,24 @@ app.get('/', (req, res) => {
   });
 });
 
+function printRoutes(app) {
+  console.log('\n--- Registered Routes ---');
+  function processLayer(layer, basePath = '') {
+    if (layer.route) {
+      const methods = Object.keys(layer.route.methods).join(', ').toUpperCase();
+      console.log(`[ROUTE] ${methods.padEnd(6)} ${basePath}${layer.route.path === '/' ? '' : layer.route.path}`);
+    } else if (layer.name === 'router' && layer.handle.stack) {
+      let routerPath = basePath;
+      const match = layer.regexp.toString().match(/^\/\^\\\/([^\\]+)\\\/\?\(\?=\\\/\|\$\)\/i/);
+      if (match) routerPath += '/' + match[1];
+      layer.handle.stack.forEach(stackItem => processLayer(stackItem, routerPath));
+    }
+  }
+
+  app._router.stack.forEach(layer => processLayer(layer));
+  console.log('-------------------------\n');
+}
+
 // Start
 async function start() {
   // Initialize Redis
@@ -64,6 +82,8 @@ async function start() {
 
   // Initialize WebSocket & metrics broadcaster
   metricsCollector.initWebSocket(server, getClientBucketLevels);
+
+  printRoutes(app);
 
   server.listen(config.port, '0.0.0.0', () => {
     console.log(`

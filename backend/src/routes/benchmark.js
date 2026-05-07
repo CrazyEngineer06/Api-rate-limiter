@@ -79,4 +79,50 @@ router.post('/benchmark', async (req, res) => {
   res.json(results);
 });
 
+router.get('/benchmark', async (req, res) => {
+  const totalRequests = 10000;
+  const latencies = [];
+  let allowed = 0;
+  let blocked = 0;
+  const startTime = performance.now();
+
+  const promises = [];
+  for (let i = 0; i < totalRequests; i++) {
+    const clientKey = `client-${Math.floor(Math.random() * 100)}`;
+    promises.push(
+      (async () => {
+        const s = performance.now();
+        try {
+          const result = await checkRateLimit(clientKey, 'free-key-001');
+          const lat = performance.now() - s;
+          latencies.push(lat);
+          if (result.allowed) allowed++; else blocked++;
+        } catch {
+          latencies.push(performance.now() - s);
+          blocked++;
+        }
+      })()
+    );
+  }
+
+  await Promise.all(promises);
+
+  const totalTime = performance.now() - startTime;
+  latencies.sort((a, b) => a - b);
+  const avg = latencies.reduce((a, b) => a + b, 0) / latencies.length;
+  const p99 = latencies[Math.floor(latencies.length * 0.99)] || 0;
+
+  const results = {
+    totalRequests,
+    duration: `${Math.round(totalTime)}ms`,
+    allowed,
+    blocked,
+    rps: Math.round((totalRequests / totalTime) * 1000),
+    avgLatency: `${avg.toFixed(2)}ms`,
+    p99Latency: `${p99.toFixed(1)}ms`
+  };
+
+  res.json(results);
+});
+
 module.exports = router;
