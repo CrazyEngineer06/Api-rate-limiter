@@ -6,7 +6,7 @@ import TierSelector from './components/TierSelector';
 import CursorGlow from './components/CursorGlow';
 import './index.css';
 
-const WS_URL = `ws://${window.location.hostname}:${window.location.port || 8080}/ws`;
+const WS_URL = import.meta.env.VITE_WS_URL || 'ws://localhost:8080/ws';
 const API_BASE = '';
 
 function AnimatedCounter({ value, decimals = 0 }) {
