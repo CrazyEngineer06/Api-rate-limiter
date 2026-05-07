@@ -7,6 +7,8 @@ import CursorGlow from './components/CursorGlow';
 import './index.css';
 
 const WS_URL = import.meta.env.VITE_WS_URL || 'ws://localhost:8080/ws';
+const ws = new WebSocket(WS_URL);
+
 const API_BASE = '';
 
 function AnimatedCounter({ value, decimals = 0 }) {
@@ -124,7 +126,7 @@ export default function App() {
   return (
     <div className="min-h-screen p-4 md:p-6 lg:p-8 relative">
       <CursorGlow />
-      
+
       {/* Header */}
       <header className="flex flex-col items-center text-center justify-center mb-16 mt-8 gap-4">
         <div className="inline-flex items-center justify-center p-2 px-4 rounded-full mb-2" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)' }}>
