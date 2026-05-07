@@ -7,9 +7,8 @@ import CursorGlow from './components/CursorGlow';
 import './index.css';
 
 const WS_URL = import.meta.env.VITE_WS_URL || 'ws://localhost:8080/ws';
-const ws = new WebSocket(WS_URL);
 
-const API_BASE = '';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
 
 function AnimatedCounter({ value, decimals = 0 }) {
   const [display, setDisplay] = useState(value);
@@ -90,7 +89,7 @@ export default function App() {
     setBenchmarkLoading(true);
     setBenchmarkResult(null);
     try {
-      const res = await fetch(`${API_BASE}/api/benchmark?apiKey=${selectedTier}&count=${benchmarkCount}`, { method: 'POST' });
+      const res = await fetch(`${API_URL}/api/benchmark?apiKey=${selectedTier}&count=${benchmarkCount}`, { method: 'POST' });
       const data = await res.json();
       setBenchmarkResult(data);
     } catch (err) {
@@ -101,7 +100,7 @@ export default function App() {
 
   const switchAlgorithm = async (algo) => {
     try {
-      await fetch(`${API_BASE}/api/config`, {
+      await fetch(`${API_URL}/api/config`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ algorithm: algo }),
@@ -114,7 +113,7 @@ export default function App() {
 
   const flushLimits = async () => {
     try {
-      await fetch(`${API_BASE}/api/flush`, { method: 'POST' });
+      await fetch(`${API_URL}/api/flush`, { method: 'POST' });
     } catch { }
   };
 
