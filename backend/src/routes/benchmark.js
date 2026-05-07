@@ -44,8 +44,15 @@ router.post('/benchmark', async (req, res) => {
               algorithm: result.algorithm,
             });
           } catch {
-            latencies.push(performance.now() - s);
+            const lat = performance.now() - s;
+            latencies.push(lat);
             blocked++;
+            metricsCollector.recordRequest({
+              timestamp: Date.now(), clientKey: apiKey,
+              tier: 'unknown', allowed: false,
+              remaining: 0, latency: lat,
+              algorithm: config.algorithm,
+            });
           }
         })()
       );
@@ -98,8 +105,15 @@ router.get('/benchmark', async (req, res) => {
           latencies.push(lat);
           if (result.allowed) allowed++; else blocked++;
         } catch {
-          latencies.push(performance.now() - s);
+          const lat = performance.now() - s;
+          latencies.push(lat);
           blocked++;
+          metricsCollector.recordRequest({
+            timestamp: Date.now(), clientKey: 'benchmark-get',
+            tier: 'unknown', allowed: false,
+            remaining: 0, latency: lat,
+            algorithm: config.algorithm,
+          });
         }
       })()
     );
